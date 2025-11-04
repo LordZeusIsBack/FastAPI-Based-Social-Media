@@ -21,3 +21,11 @@ class Post(DeclarativeBase):
     file_type = Column(String, nullable=False)
     file_name = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.now(ZoneInfo('Asia/Kolkata')))
+
+
+engine = create_async_engine(DB_URL)
+async_sesson_maker = async_sessionmaker(engine, expire_on_commit=False)
+
+async def create_db_and_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(DeclarativeBase.metadata.create_all)
