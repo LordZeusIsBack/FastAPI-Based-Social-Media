@@ -12,3 +12,15 @@ async def life_span(fast_api_app: FastAPI):
 
 
 app = FastAPI(lifespan=life_span)
+
+@app.post('/upload')
+async def upload_post(
+        file: UploadFile = File(...),
+        caption: str = Form(''),
+        session: AsyncSession = Depends(get_async_session)
+        ) -> PostResponse:
+    post = Post(caption=caption, url='fake_url', file_type='photo', file_name='fake_name')
+    session.add(post)
+    await session.commit()
+    await session.refresh(post)
+    return PostResponse.model_validate(post)
