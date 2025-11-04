@@ -8,7 +8,7 @@ from src.multipart_files import image_kit
 from imagekitio.models.UploadFileRequestOptions import UploadFileRequestOptions
 import shutil
 import os
-from uuid import uuid4
+from uuid import UUID
 import tempfile
 
 
@@ -63,7 +63,6 @@ async def get_feed(
         ) -> dict:
     result = await session.execute(select(Post).order_by(Post.created_at.desc()))
     posts = result.scalars().all()
-    print(posts)
     post_data = [
         {
             'id': str(post.id),
@@ -76,3 +75,15 @@ async def get_feed(
         for post in posts
     ]
     return {'posts': post_data}
+
+@app.delete('/post/{post_id}')
+async def delete_post(post_id: str, session: AsyncSession = Depends(get_async_session)) -> dict[str, bool]:
+    try:
+        post_uuid = UUID(post_id)
+        result = await session.execute(select(Post).where(Post.id == post_uuid))
+        post = result.scalars().first()
+        if not post: raise HTTPException(status_code=404, detail='Post ID wrong!')
+        await session.delete(post)
+        await session.commit()
+        return {'success': True}
+    except Exception as error: raise HTTPException(status_code=500, detail=str(error))
