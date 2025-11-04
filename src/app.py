@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException
-from src.schemas import PostCreate
-from src.db import create_db_and_tables, get_async_session
+from fastapi import FastAPI, File, UploadFile, Form, Depends
+from src.schemas import PostResponse
+from src.db import Post, create_db_and_tables, get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import asynccontextmanager
 
