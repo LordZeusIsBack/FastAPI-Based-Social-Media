@@ -1,5 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, Form, Depends, HTTPException
-from src.schemas import PostResponse
+from src.schemas import PostResponse, UserRead, UserCreate, UserUpdate
 from src.db import Post, create_db_and_tables, get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import asynccontextmanager
@@ -10,6 +10,7 @@ import shutil
 import os
 from uuid import UUID
 import tempfile
+from src.users import auth_backend, current_active_user, fastapi_user
 
 
 @asynccontextmanager
@@ -19,6 +20,11 @@ async def life_span(fast_api_app: FastAPI):
 
 
 app = FastAPI(lifespan=life_span)
+app.include_router(fastapi_user.get_auth_router(auth_backend), prefix='/auth/jwt', tags=['auth'])
+app.include_router(fastapi_user.get_register_router(UserRead, UserCreate), prefix='/auth/jwt', tags=['auth'])
+app.include_router(fastapi_user.get_reset_password_router(), prefix='/auth', tags=['auth'])
+app.include_router(fastapi_user.get_verify_router(UserRead), prefix='/auth', tags=['auth'])
+app.include_router(fastapi_user.get_users_router(UserRead, UserUpdate), prefix='/auth', tags=['auth'])
 
 @app.post('/upload')
 async def upload_post(
