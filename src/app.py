@@ -28,6 +28,10 @@ text_posts = {
     20: {'title': 'Final Commit', 'content': 'Good code never dies; it just gets refactored.'}
 }
 
+@asynccontextmanager
+async def life_span(fast_api_app: FastAPI):
+    await create_db_and_tables()
+    yield
 
 @app.get('/post')
 def get_all_posts():
