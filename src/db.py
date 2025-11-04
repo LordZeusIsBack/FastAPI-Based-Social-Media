@@ -18,6 +18,11 @@ class Base(DeclarativeBase):
     pass
 
 
+class User(SQLAlchemyBaseUserTableUUID, Base):
+    posts = relationship('Post', back_populates='user')
+
+
+
 class Post(Base):
     __tablename__ = 'posts'
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
